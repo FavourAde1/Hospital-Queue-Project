@@ -25,7 +25,7 @@ If MongoDB cannot be reached, `npm run dev` and `npm run db:seed` stop and tell 
 (`Cannot connect to MongoDB (127.0.0.1:27017/hospital_queue)`). `npm run dev` does not watch `.env`,
 so after editing `.env` stop it with Ctrl+C and start it again.
 
-Demo physicians (password `doctor123`, change it before real use):
+Seeded local test physicians:
 
 | Code | Physician | Email |
 |------|-----------|-------|
@@ -101,18 +101,18 @@ MongoDB on a plain local install has no transactions, so the rules are enforced 
 - "Call next", "complete" and "skip" claim the ticket with a conditional update ("only if it is still WAITING / CALLED"), so a ticket is never handled twice.
 - If a ticket is created and the process then dies before the daily counter is used again, a number may be skipped (for example A-004 never appears). Numbers are never duplicated.
 
-## Staff dashboard and demo login
+## Staff dashboard and local test accounts
 
 Open **http://localhost:4000/dashboard** after starting the server. The dashboard has separate administrator/reception and physician workspaces. The public display remains at **http://localhost:4000/board**.
 
 For a fresh local setup:
 
-1. Create a local `.env` file and set `JWT_SECRET` (see Configuration below). The default MongoDB address is `mongodb://127.0.0.1:27017/hospital_queue`.
+1. Create a local `.env` file and set `JWT_SECRET`, `ADMIN_API_KEY`, and `SEED_PASSWORD` to private values (see Configuration below). The default MongoDB address is `mongodb://127.0.0.1:27017/hospital_queue`.
 2. Run `npm install`, then `npm run db:seed`, then `npm run dev`.
-3. Administrator dashboard: username `admin`; access key `dev-admin-key-change-me` (the value of `ADMIN_API_KEY` in `.env`).
-4. Demo physicians (after `npm run db:seed`): `dr.smith@hospital.com`, `dr.jones@hospital.com`, or `dr.lee@hospital.com`; password `doctor123` (unless `SEED_PASSWORD` is set).
+3. Sign in to the administrator dashboard with username `admin` and the private `ADMIN_API_KEY` value from your `.env`.
+4. The seeded local test physicians are `dr.smith@hospital.com`, `dr.jones@hospital.com`, and `dr.lee@hospital.com`. Set their seed password privately with `SEED_PASSWORD`; credentials are intentionally not listed here.
 
-**Security:** These are development-only credentials. Change `ADMIN_API_KEY`, `JWT_SECRET`, and all demo physician passwords before any real deployment. The admin dashboard authenticates using the configured admin API key; it is not a separate admin user database. Do not expose the development key to the public internet.
+**Security:** Use private, unique development credentials. Set strong `ADMIN_API_KEY`, `JWT_SECRET`, and `SEED_PASSWORD` values before seeding or deployment. The admin dashboard authenticates using the configured admin API key; it is not a separate admin user database. Do not expose development credentials to the public internet.
 
 ### Dashboard improvements
 
@@ -181,7 +181,7 @@ Patient-facing responses never include patient names or phone numbers, because t
 ```bash
 TOKEN=$(curl -s -X POST http://localhost:4000/physicians/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"dr.smith@hospital.com","password":"doctor123"}' | node -pe "JSON.parse(require('fs').readFileSync(0)).token")
+  -d '{"email":"YOUR_PHYSICIAN_EMAIL","password":"YOUR_PRIVATE_PHYSICIAN_PASSWORD"}' | node -pe "JSON.parse(require('fs').readFileSync(0)).token")
 
 curl -H "Authorization: Bearer $TOKEN" http://localhost:4000/physicians/me/queue
 curl -X POST -H "Authorization: Bearer $TOKEN" http://localhost:4000/physicians/me/call-next
@@ -283,7 +283,7 @@ Queue transition serialization is in-process and is intended for the basic singl
 
 ## Before going live
 
-- Replace the demo password and set strong `JWT_SECRET` and `ADMIN_API_KEY` (the app refuses weak ones when `NODE_ENV=production`).
+- Set strong `JWT_SECRET`, `ADMIN_API_KEY`, and `SEED_PASSWORD` values (the app refuses weak secrets when `NODE_ENV=production`).
 - Set `MONGODB_URI` explicitly (production refuses to start with the local default), use a database user with only the access it needs,
   restrict Atlas Network Access to your server's IP, and turn on backups.
 - Serve over HTTPS and set `CORS_ORIGIN` and `TRUST_PROXY`.
