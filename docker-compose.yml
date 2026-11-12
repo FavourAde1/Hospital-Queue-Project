@@ -1,0 +1,13 @@
+# Optional: local MongoDB in Docker for development. Start with: docker compose up -d
+# The default MONGODB_URI in .env.example already points at it.
+services:
+  db:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  mongodata:

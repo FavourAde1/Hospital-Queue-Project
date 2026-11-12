@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f766e">
+
+  <title>CareQueue · Hospital Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="/dashboard.css">
+</head>
+
+<body>
+
+  <!-- ================= LOGIN VIEW ================= -->
+
+  <div id="loginView" class="login-shell">
+
+    <div class="login-art">
+
+      <div class="brand brand-light">
+        <span class="brand-mark">+</span>
+        <span>CareQueue</span>
+      </div>
+
+      <div class="art-copy">
+        <span class="eyebrow">HOSPITAL OPERATIONS, SIMPLIFIED</span>
+        <h1>Better flow.<br><em>Better care.</em></h1>
+        <p>
+          A calmer, clearer way to manage patients,
+          physicians and the daily queue.
+        </p>
+      </div>
+
+      <div class="art-foot">
+        <span>● Live queue visibility</span>
+        <span>● Secure staff access</span>
+        <span>● Built for busy clinics</span>
+      </div>
+
+      <div class="art-orb orb-one"></div>
+      <div class="art-orb orb-two"></div>
+
+    </div>
+
+    <main class="login-panel">
+
+      <div class="login-card">
+
+        <div class="brand brand-mobile">
+          <span class="brand-mark">+</span>
+          <span>CareQueue</span>
+        </div>
+
+        <span class="eyebrow teal">WELCOME BACK</span>
+
+        <h2>Sign in to your workspace</h2>
+
+        <p class="muted">
+          Choose your access type to continue.
+        </p>
+
+        <div class="role-switch">
+          <button
+            type="button"
+            class="role-option active"
+            data-role="admin"
+          >
+            Administrator
+          </button>
+
+          <button
+            type="button"
+            class="role-option"
+            data-role="physician"
+          >
+            Physician
+          </button>
+        </div>
+
+        <form id="loginForm" class="form-stack">
+
+          <label id="identityLabel" for="identity">
+            Admin username
+          </label>
+
+          <input
+            id="identity"
+            autocomplete="username"
+            value="admin"
+            required
+          >
+
+          <label id="secretLabel" for="secret">
+            Admin access key
+          </label>
+
+          <input
+            id="secret"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Enter admin access key"
+            required
+          >
+
+          <button
+            class="btn btn-primary btn-wide"
+            type="submit"
+          >
+            Sign in <span>→</span>
+          </button>
+
+          <p
+            id="loginError"
+            class="form-error"
+            role="alert"
+          ></p>
+
+        </form>
+
+        <div class="login-note">
+          <span class="lock-icon">▣</span>
+          Staff-only workspace. Patient details are not
+          shown on the public board.
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- LOGIN PAGE FOOTER -->
+    <footer class="login-footer">
+      <span>
+        © <span id="footerYear">2026</span>
+        CareQueue. All rights reserved.
+      </span>
+
+      <span>Hospital Queue Management System</span>
+    </footer>
+
+  </div>
+
+
+  <!-- ================= APPLICATION VIEW ================= -->
+
+  <div id="appView" class="app-shell" hidden>
+
+    <aside class="sidebar">
+
+      <div class="brand">
+        <span class="brand-mark">+</span>
+        <span>CareQueue</span>
+      </div>
+
+      <div class="side-caption">WORKSPACE</div>
+
+      <nav id="sideNav" class="side-nav"></nav>
+
+      <div class="sidebar-bottom">
+
+        <div class="secure-card">
+          <span class="secure-dot"></span>
+
+          <div>
+            <b>System online</b>
+            <small>Local hospital network</small>
+          </div>
+        </div>
+
+        <button id="logoutBtn" class="logout-btn">
+          ↪ <span>Sign out</span>
+        </button>
+
+      </div>
+
+    </aside>
+
+
+    <main class="main-area">
+
+      <!-- TOP BAR -->
+
+      <header class="topbar">
+
+        <div>
+          <div class="crumb">
+            HOSPITAL /
+            <span id="crumbCurrent">OVERVIEW</span>
+          </div>
+
+          <h1 id="pageTitle">Overview</h1>
+        </div>
+
+        <div class="top-actions">
+
+          <div class="live-indicator">
+            <span></span>
+            Live updates
+          </div>
+
+          <div class="avatar" id="userAvatar">A</div>
+
+          <div class="user-meta">
+            <b id="userName">Administrator</b>
+            <small id="userRole">Admin workspace</small>
+          </div>
+
+        </div>
+
+      </header>
+
+
+      <div id="toast" class="toast" role="status"></div>
+
+
+      <!-- ================= ADMIN DASHBOARD ================= -->
+
+      <section id="adminView" class="content-view" hidden>
+
+        <div class="welcome-row">
+
+          <div>
+            <h2>
+              Good day, Administrator <span>✦</span>
+            </h2>
+
+            <p>
+              Here is what's happening across your hospital today.
+            </p>
+          </div>
+
+          <div class="date-chip" id="todayDate"></div>
+
+        </div>
+
+
+        <div class="stat-grid" id="adminStats"></div>
+
+
+        <div class="two-col">
+
+          <!-- REGISTER PATIENT -->
+
+          <section class="panel">
+
+            <div class="panel-head">
+
+              <div>
+                <span class="eyebrow teal">RECEPTION DESK</span>
+                <h3>Register a patient</h3>
+              </div>
+
+              <span class="panel-icon mint">＋</span>
+
+            </div>
+
+            <form id="ticketForm" class="form-grid">
+
+              <label>
+                Patient full name
+
+                <input
+                  name="patientName"
+                  placeholder="e.g. Ada Okafor"
+                  maxlength="100"
+                  required
+                >
+              </label>
+
+              <label>
+                Phone number <small>Optional</small>
+
+                <input
+                  name="phone"
+                  placeholder="08012345678"
+                >
+              </label>
+
+              <label class="span-2">
+                Assign physician
+
+                <select
+                  name="physicianId"
+                  id="ticketPhysician"
+                  required
+                >
+                  <option value="">Loading physicians…</option>
+                </select>
+              </label>
+
+              <label class="span-2">
+                Queue priority
+
+                <select name="priority">
+                  <option value="NORMAL">Normal</option>
+                  <option value="URGENT">
+                    Urgent — reception only
+                  </option>
+                </select>
+              </label>
+
+              <button
+                class="btn btn-primary span-2"
+                type="submit"
+              >
+                Create queue ticket <span>→</span>
+              </button>
+
+            </form>
+
+          </section>
+
+
+          <!-- ADD PHYSICIAN -->
+
+          <section class="panel">
+
+            <div class="panel-head">
+
+              <div>
+                <span class="eyebrow purple">TEAM MANAGEMENT</span>
+                <h3>Add a physician</h3>
+              </div>
+
+              <span class="panel-icon lavender">✚</span>
+
+            </div>
+
+            <form id="physicianForm" class="form-grid">
+
+              <label>
+                Physician name
+
+                <input
+                  name="name"
+                  placeholder="Dr. Jane Doe"
+                  required
+                >
+              </label>
+
+              <label>
+                Email address
+
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="doctor@hospital.com"
+                  required
+                >
+              </label>
+
+              <label>
+                Specialty
+
+                <input
+                  name="specialty"
+                  placeholder="General Medicine"
+                  required
+                >
+              </label>
+
+              <label>
+                Department <small>Optional</small>
+
+                <input
+                  name="department"
+                  placeholder="Outpatient"
+                >
+              </label>
+
+              <label class="span-2">
+                Temporary password
+
+                <input
+                  name="password"
+                  type="password"
+                  minlength="8"
+                  placeholder="At least 8 characters"
+                  required
+                >
+              </label>
+
+              <label>
+                Ticket code <small>Optional</small>
+
+                <input
+                  name="code"
+                  maxlength="3"
+                  placeholder="Auto assign"
+                >
+              </label>
+
+              <button
+                class="btn btn-secondary"
+                type="submit"
+              >
+                Add physician <span>＋</span>
+              </button>
+
+            </form>
+
+          </section>
+
+        </div>
+
+
+        <!-- PATIENT QUEUE -->
+
+        <section class="panel table-panel">
+
+          <div class="panel-head">
+
+            <div>
+              <span class="eyebrow teal">LIVE OPERATIONS</span>
+              <h3>Today's patient queue</h3>
+            </div>
+
+            <div class="table-tools">
+
+              <input
+                id="ticketSearch"
+                class="search-input"
+                placeholder="Search patient or ticket…"
+              >
+
+              <button id="exportCsv" class="btn btn-quiet">
+                ↓ Export CSV
+              </button>
+
+            </div>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Ticket</th>
+                  <th>Patient</th>
+                  <th>Physician</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+
+              <tbody id="ticketRows">
+                <tr>
+                  <td colspan="6" class="empty-cell">
+                    Loading queue…
+                  </td>
+                </tr>
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
+
+
+        <!-- PHYSICIAN DIRECTORY -->
+
+        <section class="panel table-panel">
+
+          <div class="panel-head">
+
+            <div>
+              <span class="eyebrow purple">CLINICAL TEAM</span>
+              <h3>Physicians on duty</h3>
+            </div>
+
+            <span
+              class="muted small"
+              id="physicianCount"
+            ></span>
+
+          </div>
+
+          <div
+            id="physicianCards"
+            class="physician-grid"
+          ></div>
+
+        </section>
+
+      </section>
+
+
+      <!-- ================= PHYSICIAN DASHBOARD ================= -->
+
+      <section id="physicianView" class="content-view" hidden>
+
+        <div class="welcome-row">
+
+          <div>
+            <h2>
+              Your clinic, at a glance <span>✦</span>
+            </h2>
+
+            <p>
+              Manage your current consultation and call the next patient.
+            </p>
+          </div>
+
+          <div class="date-chip" id="physicianDate"></div>
+
+        </div>
+
+
+        <div class="stat-grid" id="physicianStats"></div>
+
+
+        <div class="doctor-layout">
+
+          <!-- CURRENT CONSULTATION -->
+
+          <section class="panel current-panel">
+
+            <div class="panel-head">
+
+              <div>
+                <span class="eyebrow teal">
+                  CURRENT CONSULTATION
+                </span>
+
+                <h3>Now serving</h3>
+              </div>
+
+              <span class="panel-icon mint">♡</span>
+
+            </div>
+
+            <div
+              id="currentPatient"
+              class="current-patient"
+            >
+
+              <div class="empty-illustration">✚</div>
+
+              <h3>No active patient</h3>
+
+              <p>
+                Call the next patient when you're ready.
+              </p>
+
+            </div>
+
+            <div class="action-row">
+
+              <button
+                id="completeBtn"
+                class="btn btn-primary"
+                disabled
+              >
+                ✓ Complete consultation
+              </button>
+
+              <button
+                id="skipBtn"
+                class="btn btn-outline"
+                disabled
+              >
+                Skip patient
+              </button>
+
+            </div>
+
+          </section>
+
+
+          <!-- WAITING ROOM -->
+
+          <section class="panel next-panel">
+
+            <div class="panel-head">
+
+              <div>
+                <span class="eyebrow orange">UP NEXT</span>
+                <h3>Waiting room</h3>
+              </div>
+
+              <span
+                class="count-bubble"
+                id="waitingCount"
+              >0</span>
+
+            </div>
+
+            <div
+              id="waitingList"
+              class="waiting-list"
+            >
+              <div class="empty-cell">
+                No patients waiting.
+              </div>
+            </div>
+
+            <button
+              id="callNextBtn"
+              class="btn btn-primary btn-wide call-next"
+            >
+              Call next patient <span>→</span>
+            </button>
+
+          </section>
+
+        </div>
+
+      </section>
+
+
+      <!-- DASHBOARD FOOTER -->
+
+      <footer class="footer">
+
+        <span>
+          CareQueue <b>·</b> Hospital Queue Management
+        </span>
+
+        <span>Designed for better patient flow</span>
+
+      </footer>
+
+    </main>
+
+  </div>
+
+
+  <!-- APPLICATION SCRIPTS -->
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/dashboard.js"></script>
+
+</body>
+</html>

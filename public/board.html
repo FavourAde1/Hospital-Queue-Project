@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#092b2b">
+  <title>Live Queue | CareQueue</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #092b2b;
+      color: #f4fbf8;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      --muted: #9ab8b2;
+      --line: rgba(192, 230, 219, .14);
+      --teal: #5de0bb;
+      --amber: #ffcf70;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 82% 0%, rgba(18, 123, 105, .31), transparent 38rem),
+        linear-gradient(145deg, #092b2b 0%, #0c3835 55%, #092b2b 100%);
+    }
+
+    .board-shell {
+      width: min(1600px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: clamp(20px, 4vw, 56px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar, .brand, .topbar-actions, .board-intro, .section-heading,
+    .physician-heading, .queue-summary, .footer {
+      display: flex;
+      align-items: center;
+    }
+
+    .topbar, .board-intro, .section-heading, .queue-summary, .footer {
+      justify-content: space-between;
+    }
+
+    .topbar { gap: 20px; }
+    .brand { gap: 12px; }
+
+    .brand-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border: 1px solid rgba(93, 224, 187, .35);
+      border-radius: 15px;
+      background: rgba(93, 224, 187, .12);
+      color: var(--teal);
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .brand-name { font-size: 18px; font-weight: 750; letter-spacing: -.4px; }
+    .brand-caption, .eyebrow {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+    .brand-caption { margin-top: 4px; letter-spacing: 1.2px; }
+    .topbar-actions { gap: 22px; }
+
+    .connection {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: #c1d9d3;
+      font-size: 12px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .connection-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #859b96;
+      box-shadow: 0 0 0 4px rgba(133, 155, 150, .13);
+    }
+    .connection--online .connection-dot {
+      background: var(--teal);
+      box-shadow: 0 0 0 4px rgba(93, 224, 187, .13);
+    }
+    .connection--offline { color: #ffd3b8; }
+    .connection--offline .connection-dot {
+      background: #ff9a72;
+      box-shadow: 0 0 0 4px rgba(255, 154, 114, .14);
+    }
+
+    .staff-link {
+      color: #b7d4cb;
+      font-size: 12px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+    .staff-link:hover, .staff-link:focus-visible { color: #fff; text-decoration: underline; }
+
+    .board-intro {
+      align-items: end;
+      gap: 24px;
+      margin: clamp(46px, 8vh, 94px) 0 34px;
+    }
+
+    .board-intro h1 {
+      margin: 12px 0 10px;
+      font-size: clamp(38px, 6vw, 72px);
+      font-weight: 720;
+      letter-spacing: -.065em;
+      line-height: .98;
+    }
+
+    .board-intro p { margin: 0; color: #b3cbc5; font-size: clamp(14px, 1.5vw, 18px); }
+
+    .queue-date {
+      padding: 11px 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .035);
+      color: #d7e8e2;
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .section-heading { margin: 0 0 16px; }
+    .section-heading h2 { margin: 0; font-size: 15px; font-weight: 700; }
+    .last-updated { color: var(--muted); font-size: 12px; }
+
+    .physician-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+      gap: 18px;
+    }
+
+    .physician-card {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      padding: clamp(20px, 2.4vw, 30px);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: linear-gradient(150deg, rgba(21, 67, 61, .94), rgba(13, 49, 47, .94));
+      box-shadow: 0 18px 50px rgba(0, 0, 0, .13);
+    }
+
+    .physician-card::after {
+      position: absolute;
+      top: -64px;
+      right: -52px;
+      width: 190px;
+      height: 190px;
+      border: 1px solid rgba(183, 238, 218, .07);
+      border-radius: 50%;
+      box-shadow: 0 0 0 24px rgba(183, 238, 218, .025), 0 0 0 48px rgba(183, 238, 218, .02);
+      content: "";
+      pointer-events: none;
+    }
+
+    .physician-heading {
+      position: relative;
+      z-index: 1;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .physician-name {
+      overflow-wrap: anywhere;
+      margin: 0;
+      font-size: clamp(18px, 2vw, 23px);
+      font-weight: 720;
+      letter-spacing: -.5px;
+    }
+
+    .physician-specialty { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+
+    .status {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border: 1px solid rgba(93, 224, 187, .24);
+      border-radius: 999px;
+      background: rgba(93, 224, 187, .08);
+      color: var(--teal);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .status::before {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+    }
+
+    .status--occupied {
+      border-color: rgba(255, 207, 112, .27);
+      background: rgba(255, 207, 112, .09);
+      color: var(--amber);
+    }
+
+    .ticket-area {
+      position: relative;
+      z-index: 1;
+      min-height: 150px;
+      padding: 30px 0 24px;
+    }
+
+    .ticket-label { color: #a7c7bd; font-size: 10px; font-weight: 750; letter-spacing: 1.8px; }
+    .ticket-number {
+      margin-top: 6px;
+      color: #f4fbf8;
+      font-size: clamp(52px, 7vw, 82px);
+      font-weight: 760;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -.065em;
+      line-height: 1.05;
+    }
+    .ticket-number--idle { color: #87aaa0; font-size: clamp(27px, 3vw, 38px); letter-spacing: -.04em; }
+    .ticket-hint { margin-top: 8px; color: var(--muted); font-size: 13px; }
+
+    .queue-summary {
+      position: relative;
+      z-index: 1;
+      align-items: flex-start;
+      gap: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+    .waiting-count { color: #eaf5f0; font-size: 15px; font-weight: 700; }
+    .waiting-count strong { color: var(--teal); font-size: 23px; margin-right: 5px; }
+    .next-queue { min-width: 0; text-align: right; }
+    .next-label { color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: 1.2px; text-transform: uppercase; }
+    .next-tickets { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; margin-top: 8px; }
+    .next-ticket {
+      padding: 5px 8px;
+      border: 1px solid rgba(183, 238, 218, .15);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, .045);
+      color: #d8e9e3;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+    }
+    .next-empty { margin-top: 8px; color: #89a9a0; font-size: 12px; }
+
+    .empty-state {
+      padding: 38px 24px;
+      border: 1px dashed rgba(192, 230, 219, .24);
+      border-radius: 18px;
+      color: #b3cbc5;
+      text-align: center;
+    }
+    .empty-state[hidden] { display: none; }
+    .empty-state strong { display: block; margin-bottom: 7px; color: #f0faf6; font-size: 17px; }
+    .empty-state p { margin: 0; font-size: 13px; }
+
+    .footer {
+      gap: 18px;
+      margin-top: auto;
+      padding-top: 38px;
+      color: #86a79e;
+      font-size: 11px;
+    }
+    .footer-note { display: flex; align-items: center; gap: 8px; }
+    .footer-note::before { color: var(--teal); content: "●"; font-size: 8px; }
+
+    @media (max-width: 600px) {
+      .board-shell { padding: 22px 18px 20px; }
+      .topbar { align-items: flex-start; }
+      .topbar-actions { align-items: flex-end; flex-direction: column; gap: 10px; }
+      .staff-link { display: none; }
+      .board-intro { align-items: flex-start; flex-direction: column; margin: 48px 0 28px; }
+      .queue-date { font-size: 12px; }
+      .physician-grid { grid-template-columns: 1fr; }
+      .physician-card { padding: 21px; }
+      .ticket-area { min-height: 132px; padding: 24px 0 19px; }
+      .footer { align-items: flex-start; flex-direction: column; gap: 10px; padding-top: 26px; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .physician-card { animation: rise-in .45s ease both; }
+      @keyframes rise-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="board-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="CareQueue live queue">
+        <span class="brand-mark" aria-hidden="true">+</span>
+        <div>
+          <div class="brand-name">CareQueue</div>
+          <div class="brand-caption">Hospital queue display</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div id="connection" class="connection" role="status" aria-live="polite">
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span id="connectionText">Connecting…</span>
+        </div>
+        <a class="staff-link" href="/dashboard">Staff sign in ↗</a>
+      </div>
+    </header>
+
+    <section class="board-intro" aria-labelledby="pageTitle">
+      <div>
+        <div class="eyebrow">Live clinic status</div>
+        <h1 id="pageTitle">Now serving</h1>
+        <p>Please listen for your ticket number.</p>
+      </div>
+      <div id="queueDate" class="queue-date">Loading today’s queue…</div>
+    </section>
+
+    <main>
+      <div class="section-heading">
+        <h2>Physicians on duty</h2>
+        <span id="updated" class="last-updated" aria-live="polite"></span>
+      </div>
+      <div id="grid" class="physician-grid" aria-live="polite"></div>
+      <div id="empty" class="empty-state" hidden>
+        <strong>No physicians on duty</strong>
+        <p>Please check back shortly or ask reception for assistance.</p>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span class="footer-note">Queue information refreshes automatically</span>
+      <span>For your privacy, only ticket numbers are shown.</span>
+    </footer>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/board.js"></script>
+</body>
+</html>
