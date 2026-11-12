@@ -13,7 +13,7 @@ Otherwise pick an option under **Database setup** below.
 
 ```bash
 npm install
-cp .env.example .env         # edit MONGODB_URI only if your MongoDB is not at 127.0.0.1:27017
+# Create a local .env file and set JWT_SECRET (see Configuration below).
 npm run db:seed              # creates 3 demo physicians (collections and indexes are created automatically)
 npm run dev                  # http://localhost:4000
 ```
@@ -107,7 +107,7 @@ Open **http://localhost:4000/dashboard** after starting the server. The dashboar
 
 For a fresh local setup:
 
-1. Copy `.env.example` to `.env` and keep `MONGODB_URI=mongodb://127.0.0.1:27017/hospital_queue` for the Windows local MongoDB service.
+1. Create a local `.env` file and set `JWT_SECRET` (see Configuration below). The default MongoDB address is `mongodb://127.0.0.1:27017/hospital_queue`.
 2. Run `npm install`, then `npm run db:seed`, then `npm run dev`.
 3. Administrator dashboard: username `admin`; access key `dev-admin-key-change-me` (the value of `ADMIN_API_KEY` in `.env`).
 4. Demo physicians (after `npm run db:seed`): `dr.smith@hospital.com`, `dr.jones@hospital.com`, or `dr.lee@hospital.com`; password `doctor123` (unless `SEED_PASSWORD` is set).
@@ -227,7 +227,13 @@ requires a valid token.
 
 ## Configuration
 
-See `.env.example`. The important ones:
+Create a local `.env` file for configuration; `.env` and `.env.example` are intentionally excluded from Git. `JWT_SECRET` is required. For local development, you can generate one with:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
+
+Set the generated value as `JWT_SECRET` in `.env`. The important configuration variables are:
 
 | Variable | Meaning |
 |----------|---------|
